@@ -10,31 +10,13 @@ use pocketmine\tile\Sign;
 use pocketmine\utils\Config;
 use pocketmine\utils\TextFormat as F;
 
-/*
-         -        ████──██─██      -
-          -       █──██──███      -
-            -     ████────█      -
-              -   █──██───█    -
-                - ████────█  -
-                  ------------------
-██─██─████─██─██─████─███─█─█─█───█
-─███──█──█──███──█──█──█──█─█─██─██
-──█───████───█───█─────█──█─█─█─█─█
-─███──█──────█───█──█──█──█─█─█───█
-██─██─█──────█───████──█──███─█───█
-*/
-
 class SignStatus extends PluginBase implements Listener
 {
-
     /** @var Config sign */
     public $sign;
 
     /** @var Config translation */
     public $translation;
-
-    /** @var Config config */
-    public $config;
 
     /** @var Config config */
     public $format;
@@ -43,42 +25,40 @@ class SignStatus extends PluginBase implements Listener
     public $prefix = "§4[§2SignStatus§4]§6 ";
 
     public function onEnable(){
-        if (!is_dir($this->getDataFolder())) {
-            @mkdir($this->getDataFolder());
-            //Use default, not PM.
-        }
+        $this->saveDefaultConfig();
 
         $this->saveResource("sign.yml");
         $this->saveResource("translations.yml");
-        $this->saveResource("config.yml");
         $this->saveResource("format.yml");
 
-        $this->sign = new Config($this->getDataFolder() . "sign.yml", Config::YAML); //FIXED !
+        $this->sign = new Config($this->getDataFolder() . "sign.yml", Config::YAML);
         $this->translation = new Config($this->getDataFolder() . "translations.yml", Config::YAML);
-        $this->config = new Config($this->getDataFolder() . "config.yml", Config::YAML);
         $this->format = new Config($this->getDataFolder() . "format.yml", Config::YAML);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $time = $this->config->get("time");
+        $time = $this->getConfig()->get("time", "1");
         if (!(is_numeric($time))) {
             $time = 20;
             $this->getLogger()->alert("Can't read time for update sign! Please, check your config file! Default: " . F::AQUA . " 1 " . F::WHITE . " second");
         } else {
             $time = $time * 20;
         }
-        $this->getServer()->getScheduler()->scheduleRepeatingTask(new Task($this), $time);
-        $this->getLogger()->notice(F::GREEN . "SignStatus loaded");
-
+        $this->getServer()->getScheduler()->scheduleRepeatingTask(new StatusTask($this), $time);
+        $this->getLogger()->notice(F::GREEN . "SignStatus Enabled");
     }
 
     public function onDisable(){
         $this->getLogger()->notice(F::RED . "SignStatus disabled");
     }
 
-
     /**
+     * @priority MONITOR
+     * @ignoreCancelled false
+     *
      * @param SignChangeEvent $event
      */
     public function onSignChange(SignChangeEvent $event){
+    	if($event->isCancelled())
+    		return;
         $player = $event->getPlayer();
         if (strtolower(trim($event->getLine(0))) == "status" || strtolower(trim($event->getLine(0))) == "[status]") {
             if ($player->hasPermission("signstatus") or $player->hasPermission("signstatus.create")) {
@@ -102,22 +82,26 @@ class SignStatus extends PluginBase implements Listener
                 $event->getPlayer()->sendMessage($this->prefix . $this->translation->get("sign_created"));
             } else {
                 $player->sendMessage($this->prefix . $this->translation->get("sign_no_perms"));
-                $event->setCancelled();
             }
         }
     }
 
     /**
+     * @priority HIGH
+     * @ignoreCancelled false
+     *
      * @param BlockBreakEvent $event
      */
     public function onPlayerBreakBlock(BlockBreakEvent $event){
+    	if($event->isCancelled())
+    		return;
         if ($event->getBlock()->getID() == Item::SIGN || $event->getBlock()->getID() == Item::WALL_SIGN || $event->getBlock()->getID() == Item::SIGN_POST) {
-            $signt = $event->getBlock();
-            if (($tile = $signt->getLevel()->getTile($signt))) {
+            $sign = $event->getBlock();
+            if (($tile = $sign->getLevel()->getTile($sign))) {
                 if ($tile instanceof Sign) {
                     if ($event->getBlock()->getX() == $this->sign->getNested("sign.x") && $event->getBlock()->getY() == $this->sign->getNested("sign.y") && $event->getBlock()->getZ() == $this->sign->getNested("sign.z")) {
                         if ($tile->getText()[0] == strtolower($this->format->getAll()["format"][1])) {
-                            if ($event->getPlayer()->hasPermission("signstatus.break")) {
+                            if ($event->getPlayer()->hasPermission("signstatus.break") or $event->getPlayer()->hasPermission("signstatus")) {
                                 $event->getPlayer()->sendMessage($this->prefix . $this->translation->get("sign_destroyed"));
                             } else {
                                 $event->getPlayer()->sendMessage($this->prefix . $this->translation->get("sign_no_perms"));

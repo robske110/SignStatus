@@ -1,10 +1,20 @@
 name: SignStatus
 main: SignStatus\SignStatus
-version: 3.0.1
-author: xpyctum
-api: [3.0.0]
+version: 3.0.2
+api:
+ - 3.0.0
+ - 3.0.0-ALPHA7
+author: "xpyctum"
+description: ""
 load: POSTWORLD
 permissions:
  signstatus:
   default: op
-  description: Can create status sign
+  description: "Allows players to create and destroy status signs"
+  children:
+   signstatus.break:
+    default: op
+    description: "Allows players to destroy status signs"
+   signstatus.create:
+    default: op
+    description: "Allows players to create status signs"

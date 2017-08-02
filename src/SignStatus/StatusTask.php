@@ -2,21 +2,18 @@
 
 namespace SignStatus;
 
-use pocketmine\nbt\tag\StringTag;
 use pocketmine\scheduler\PluginTask;
 use pocketmine\tile\Sign;
 
-class Task extends PluginTask{
+class StatusTask extends PluginTask{
     private $plugin;
-    private $countable;
 
     public function __construct(SignStatus $plugin){
         parent::__construct($plugin);
         $this->plugin = $plugin;
-        $this->countable = 0;
     }
 
-    public function onRun($currentTick){
+    public function onRun(int $currentTick){
         $format = $this->plugin->format->getAll();
         foreach ($this->plugin->getServer()->getLevels() as $levels) {
             foreach ($levels->getTiles() as $tile) {
@@ -25,7 +22,6 @@ class Task extends PluginTask{
                         $tps = $this->plugin->getServer()->getTicksPerSecond();
                         $p = count($this->plugin->getServer()->getOnlinePlayers());
                         $full = $this->plugin->getServer()->getMaxPlayers();
-                        $count = $this->countable++; //For debug
                         $load = $this->plugin->getServer()->getTickUsage();
                         $level = $tile->getLevel()->getName();
                         $index = [];
