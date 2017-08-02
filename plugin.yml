@@ -5,7 +5,7 @@ api:
  - 3.0.0
  - 3.0.0-ALPHA7
 author: "xpyctum"
-description: ""
+description: "A plugin for displaying the server's current stats in-game"
 load: POSTWORLD
 permissions:
  signstatus:
