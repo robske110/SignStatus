@@ -1,5 +1,5 @@
 <?php
-namespace SignStatus;
+namespace xpyctum\SignStatus;
 
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\block\SignChangeEvent;

@@ -1,6 +1,5 @@
 <?php
-
-namespace SignStatus;
+namespace xpyctum\SignStatus;
 
 use pocketmine\scheduler\PluginTask;
 use pocketmine\tile\Sign;
