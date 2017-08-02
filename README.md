@@ -1,4 +1,4 @@
-#SignStatus
+# SignStatus
 ### A plugin for displaying the server's current stats in-game
 
 ##### Setup:
