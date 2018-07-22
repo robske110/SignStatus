@@ -1,14 +1,13 @@
 <?php
 namespace xpyctum\SignStatus;
 
-use pocketmine\scheduler\PluginTask;
+use pocketmine\scheduler\Task;
 use pocketmine\tile\Sign;
 
-class StatusTask extends PluginTask{
+class StatusTask extends Task{
     private $plugin;
 
     public function __construct(SignStatus $plugin){
-        parent::__construct($plugin);
         $this->plugin = $plugin;
     }
 
